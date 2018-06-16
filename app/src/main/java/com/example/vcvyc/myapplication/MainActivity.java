@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             if (score<-1.5)textView.append("[*]图二检测不到人脸");
             else textView.append("[*]图一检测不到人脸");
         }else{
-            textView.append("[*]二者相似度为:"+score);
+            textView.append("[*]二者相似度为:"+score+" [可设为小于1.1为同一个人]");
         }
     }
     //比较bitmap1和bitmap2(会先切割人脸在比较)
