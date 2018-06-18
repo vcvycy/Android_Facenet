@@ -12,12 +12,16 @@ import android.util.Log;
 
 import java.math.BigDecimal;
 
+import static java.lang.Math.*;
+
 /**
  *   人脸检测
  */
 public class FaceDetect {
+    //检测到人脸后，长宽各扩展44个像素
+    static int margin=44;
     static int MAX_FACES=5;
-    private static Rect face2Rect(FaceDetector.Face f, int imgwidth, int imgheight) {
+    private static Rect face2Rect(FaceDetector.Face f, int imgwidth, int imgheight,int margin) {
         PointF p=new PointF();
         f.getMidPoint(p);
         double eyesDistance = f.eyesDistance();
@@ -27,20 +31,21 @@ public class FaceDetect {
         y = (int)(Math.floor(p.y-(1.0*eyesDistance)));
         width = (int)Math.ceil(2.0*eyesDistance);
         height = (int)Math.ceil(3.0f*eyesDistance);
-
-        if(x < 0)
-            x = 0;
-        if(y < 0)
-            y = 0;
-        if((y + height) > imgheight)
-            height = (int)(imgheight - y);
-        if((x + width) > imgwidth)
-            width = (int)(imgwidth - x);
-
+        //margin
+        int x1=max(x-margin/2,0);
+        int y1=max(y-margin/2,0);
+        int x2=min(x+width+margin/2,imgwidth-1);
+        int y2=min(y+height+margin/2,imgheight-1);
         Rect r = new Rect();
-        r.set(x, y, x+width, y+height);
+        r.set(x1,y1,x2,y2);
+        //r.set(x, y, x+width, y+height);
+        Log.d("FaceDetectWH","width:"+imgwidth+" height:"+imgheight);
+        Log.d("FaceDetect++","x:"+x+" y:"+y+ "  x2:"+(x+width)+"y2:"+(y+height));
+        Log.d("FaceDetect--","x:"+x1+" y:"+y1+ "  x2:"+x2+"y2:"+y2);
         return r;
     }
+
+
     //android.media.FaceDetector 暂时只支持RGB_565格式图片
     private static Bitmap convert2rgb565(Bitmap bitmap) {
         Bitmap.Config config=Bitmap.Config.RGB_565;
@@ -81,7 +86,7 @@ public class FaceDetect {
             int face_num = faceDetector.findFaces(bitmap, faces);
             Rect[] rects=new Rect[face_num];
             for (int i=0;i<face_num;i++){
-                rects[i]=face2Rect(faces[i],bitmap.getWidth(),bitmap.getHeight());
+                rects[i]=face2Rect(faces[i],bitmap.getWidth(),bitmap.getHeight(),margin);
                 Rect rect=rects[i];
                 //Log.d("MainActivity","[*]"+rect.left+" "+rect.top+" "+rect.right+" "+rect.bottom);
             }
