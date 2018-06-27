@@ -71,24 +71,35 @@ public class MainActivity extends AppCompatActivity {
         if (rect1==null) return -1;
         Rect rect2 = FaceDetect.detectBiggestFace(bitmap2);
         if (rect2==null) return -2;*/
+        Bitmap bm1=Utils.copyBitmap(bitmap1);
+        Bitmap bm2=Utils.copyBitmap(bitmap2);
         Vector<Box> boxes=mtcnn.detectFaces(bitmap1,40);
         Vector<Box> boxes1=mtcnn.detectFaces(bitmap2,40);
         if (boxes.size()==0) return -1;
         if (boxes1.size()==0)return -2;
-        for (int i=0;i<boxes.size();i++) Utils.drawBox(bitmap1,boxes.get(i));
-        for (int i=0;i<boxes1.size();i++) Utils.drawBox(bitmap2,boxes1.get(i));
+        for (int i=0;i<boxes.size();i++) Utils.drawBox(bitmap1,boxes.get(i),1+bitmap1.getWidth()/500 );
+        for (int i=0;i<boxes1.size();i++) Utils.drawBox(bitmap2,boxes1.get(i),1+bitmap2.getWidth()/500 );
         Log.i("Main","[*]boxNum"+boxes1.size());
         Rect rect1=boxes.get(0).transform2Rect();
         Rect rect2=boxes1.get(0).transform2Rect();
+        //MTCNN检测到的人脸框，再上下左右扩展margin个像素点，再放入facenet中。
+        int margin=20; //20这个值是facenet中设置的。自己应该可以调整。
+        Utils.rectExtend(bitmap1,rect1,margin);
+        Utils.rectExtend(bitmap2,rect2,margin);
+        //要比较的两个人脸，加厚Rect
+        Utils.drawRect(bitmap1,rect1,1+bitmap1.getWidth()/100 );
+        Utils.drawRect(bitmap2,rect2,1+bitmap2.getWidth()/100 );
         //(2)裁剪出人脸(只取第一张)
-        Bitmap face1=FaceDetect.crop(bitmap1,rect1);
-        Bitmap face2=FaceDetect.crop(bitmap2,rect2);
+        Bitmap face1=Utils.crop(bitmap1,rect1);
+        Bitmap face2=Utils.crop(bitmap2,rect2);
         //(显示人脸)
         imageView1.setImageBitmap(bitmap1);
         imageView2.setImageBitmap(bitmap2);
         //(3)特征提取
         FaceFeature ff1=facenet.recognizeImage(face1);
         FaceFeature ff2=facenet.recognizeImage(face2);
+        bitmap1=bm1;
+        bitmap2=bm2;
         //(4)比较
         return ff1.compare(ff2);
     }

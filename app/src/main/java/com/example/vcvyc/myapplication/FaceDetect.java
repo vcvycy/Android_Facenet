@@ -56,11 +56,6 @@ public class FaceDetect {
         canvas.drawBitmap(bitmap, 0, 0, paint);
         return convertedBitmap;
     }
-    //按照rect的大小裁剪出人脸
-    public static Bitmap crop(Bitmap bitmap,Rect rect){
-        Bitmap cropped=Bitmap.createBitmap(bitmap,rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-        return cropped;
-    }
     public static Rect  detectBiggestFace(Bitmap _bitmap){
         Rect[] rects=FaceDetect.detectFaces(_bitmap);
         if (rects.length==0) return null;

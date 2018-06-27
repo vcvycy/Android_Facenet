@@ -14,13 +14,16 @@ import android.widget.ImageView;
 
 import java.util.Vector;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class Utils {
     //复制图片，并设置isMutable=true
     public static Bitmap copyBitmap(Bitmap bitmap){
         return bitmap.copy(bitmap.getConfig(),true);
     }
     //在bitmap中画矩形
-    public static void drawRect(Bitmap bitmap,Rect rect){
+    public static void drawRect(Bitmap bitmap,Rect rect,int thick){
         try {
             Canvas canvas = new Canvas(bitmap);
             Paint paint = new Paint();
@@ -28,7 +31,7 @@ public class Utils {
             int g=0;//(int)(Math.random()*255);
             int b=0;//(int)(Math.random()*255);
             paint.setColor(Color.rgb(r, g, b));
-            paint.setStrokeWidth(1+bitmap.getWidth()/500 );
+            paint.setStrokeWidth(thick);
             paint.setStyle(Paint.Style.STROKE);
             canvas.drawRect(rect, paint);
             //Log.i("Util","[*]draw rect");
@@ -37,17 +40,17 @@ public class Utils {
         }
     }
     //在图中画点
-    public static void drawPoints(Bitmap bitmap, Point[] landmark){
+    public static void drawPoints(Bitmap bitmap, Point[] landmark,int thick){
         for (int i=0;i<landmark.length;i++){
             int x=landmark[i].x;
             int y=landmark[i].y;
             //Log.i("Utils","[*] landmarkd "+x+ "  "+y);
-            drawRect(bitmap,new Rect(x-1,y-1,x+1,y+1));
+            drawRect(bitmap,new Rect(x-1,y-1,x+1,y+1),thick);
         }
     }
-    public static void drawBox(Bitmap bitmap,Box box){
-        drawRect(bitmap,box.transform2Rect());
-        drawPoints(bitmap,box.landmark);
+    public static void drawBox(Bitmap bitmap,Box box,int thick){
+        drawRect(bitmap,box.transform2Rect(),thick);
+        drawPoints(bitmap,box.landmark,thick);
     }
     //Flip alone diagonal
     //对角线翻转。data大小原先为h*w*stride，翻转后变成w*h*stride
@@ -102,7 +105,19 @@ public class Utils {
                 b.addElement(boxes.get(i));
         return b;
     }
-    //
+    //按照rect的大小裁剪出人脸
+    public static Bitmap crop(Bitmap bitmap,Rect rect){
+        Bitmap cropped=Bitmap.createBitmap(bitmap,rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+        return cropped;
+    }
+    //rect上下左右各扩展pixels个像素
+    public static void rectExtend(Bitmap bitmap,Rect rect,int pixels){
+        rect.left=max(0,rect.left-pixels);
+        rect.right=min(bitmap.getWidth()-1,rect.right+pixels);
+        rect.top=max(0,rect.top-pixels);
+        rect.bottom=min(bitmap.getHeight()-1,rect.bottom+pixels);
+    }
+
     static public void showPixel(int v){
         Log.i("MainActivity","[*]Pixel:R"+((v>>16)&0xff)+"G:"+((v>>8)&0xff)+ " B:"+(v&0xff));
     }
