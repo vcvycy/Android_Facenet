@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity {
     //模型地址、facenet类、要比较的两张图片
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     //图片显示的空间
     public ImageView imageView1;
     public ImageView imageView2;
+    //
+    public MTCNN mtcnn;
 
     //从assets中读取图片
     private  Bitmap readFromAssets(String filename){
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
-        return bitmap;
+        return Utils.copyBitmap(bitmap);
     }
     public void textviewLog(String msg){
         TextView textView=(TextView)findViewById(R.id.textView);
@@ -63,16 +66,26 @@ public class MainActivity extends AppCompatActivity {
     //比较bitmap1和bitmap2(会先切割人脸在比较)
     public double compareFaces(){
         //(1)圈出人脸，人脸检测(可能会有多个人脸)
+        /*安卓自带人脸检测实现
         Rect rect1 = FaceDetect.detectBiggestFace(bitmap1);
         if (rect1==null) return -1;
         Rect rect2 = FaceDetect.detectBiggestFace(bitmap2);
-        if (rect2==null) return -2;
+        if (rect2==null) return -2;*/
+        Vector<Box> boxes=mtcnn.detectFaces(bitmap1,40);
+        Vector<Box> boxes1=mtcnn.detectFaces(bitmap2,40);
+        if (boxes.size()==0) return -1;
+        if (boxes1.size()==0)return -2;
+        for (int i=0;i<boxes.size();i++) Utils.drawBox(bitmap1,boxes.get(i));
+        for (int i=0;i<boxes1.size();i++) Utils.drawBox(bitmap2,boxes1.get(i));
+        Log.i("Main","[*]boxNum"+boxes1.size());
+        Rect rect1=boxes.get(0).transform2Rect();
+        Rect rect2=boxes1.get(0).transform2Rect();
         //(2)裁剪出人脸(只取第一张)
         Bitmap face1=FaceDetect.crop(bitmap1,rect1);
         Bitmap face2=FaceDetect.crop(bitmap2,rect2);
         //(显示人脸)
-        imageView1.setImageBitmap(face1);
-        imageView2.setImageBitmap(face2);
+        imageView1.setImageBitmap(bitmap1);
+        imageView2.setImageBitmap(bitmap2);
         //(3)特征提取
         FaceFeature ff1=facenet.recognizeImage(face1);
         FaceFeature ff2=facenet.recognizeImage(face2);
@@ -84,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mtcnn=new MTCNN(getAssets());
         imageView1=(ImageView)findViewById(R.id.imageView);
         imageView2=(ImageView)findViewById(R.id.imageView2);
         //载入facenet
@@ -142,11 +156,11 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bm = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
             if (requestCode == 0x1 && resultCode == RESULT_OK) {
                 //imageView1.setImageURI(data.getData());
-                bitmap1=bm;
+                bitmap1=Utils.copyBitmap(bm);
                 imageView1.setImageBitmap(bitmap1);
             }else {
                 //imageView2.setImageURI(data.getData());
-                bitmap2=bm;
+                bitmap2=Utils.copyBitmap(bm);
                 imageView2.setImageBitmap(bitmap2);
             }
         }catch (Exception e){

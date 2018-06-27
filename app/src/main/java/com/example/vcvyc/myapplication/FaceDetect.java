@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 
 import static java.lang.Math.*;
 
-/**
- *   人脸检测
+/**  此文件弃用。
+ *   Android自带人脸检测，效果太差弃用。现在使用MTCNN。
  */
 public class FaceDetect {
     //检测到人脸后，长宽各扩展44个像素
