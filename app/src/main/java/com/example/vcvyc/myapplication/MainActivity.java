@@ -90,8 +90,7 @@ public class MainActivity extends AppCompatActivity {
         FaceFeature ff1=facenet.recognizeImage(face1);
         FaceFeature ff2=facenet.recognizeImage(face2);
         //(4)比较
-        double score=ff1.compare(ff2);
-        return score;
+        return ff1.compare(ff2);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -346,9 +346,9 @@ public class MTCNN {
         for (int i=0;i<num;i++)
             if (boxes.get(i).score<ONetThreshold)
                 boxes.get(i).deleted=true;
+        BoundingBoxReggression(boxes);
         //Nms
         nms(boxes,0.7f,"Min");
-        BoundingBoxReggression(boxes);
         return Utils.updateBoxes(boxes);
     }
     private void square_limit(Vector<Box>boxes,int w,int h){
