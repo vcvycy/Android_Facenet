@@ -115,8 +115,6 @@ public class MainActivity extends AppCompatActivity {
         facenet=new Facenet(getAssets());
         long t2=System.currentTimeMillis();
         textviewLog("[*]模型载入成功,Time[ms]:"+(t2-t_start));
-        textviewLog("[*]人脸检测用的是android自带的，可能会比较弱一点");
-        textviewLog("[*]第一次比较会慢3秒左右");
         //先从assets中读取图片
         bitmap1=readFromAssets("trump1.jpg");
         bitmap2=readFromAssets("trump2.jpg");
@@ -164,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
         if(data==null)return;
         try {
             Bitmap bm = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+            if (bm.getWidth()>1000)  bm=Utils.resize(bm,1000);
             if (requestCode == 0x1 && resultCode == RESULT_OK) {
                 //imageView1.setImageURI(data.getData());
                 bitmap1=Utils.copyBitmap(bm);

@@ -6,6 +6,7 @@ package com.example.vcvyc.myapplication;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -120,5 +121,12 @@ public class Utils {
 
     static public void showPixel(int v){
         Log.i("MainActivity","[*]Pixel:R"+((v>>16)&0xff)+"G:"+((v>>8)&0xff)+ " B:"+(v&0xff));
+    }
+    static public Bitmap resize(Bitmap _bitmap,int new_width){
+        float scale=((float)new_width)/_bitmap.getWidth();
+        Matrix matrix=new Matrix();
+        matrix.postScale(scale,scale);
+        Bitmap bitmap=Bitmap.createBitmap(_bitmap,0,0,_bitmap.getWidth(),_bitmap.getHeight(),matrix,true);
+        return bitmap;
     }
 }
